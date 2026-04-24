@@ -382,22 +382,23 @@
         }
 
         function calculateFullMonths(start, end) {
+            // 연도 및 월 차이 계산
             let totalMonths = (end.getFullYear() - start.getFullYear()) * 12;
             totalMonths += (end.getMonth() - start.getMonth());
             
             const startDay = start.getDate();
             const endDay = end.getDate();
-            const lastDayOfEndMonth = new Date(end.getFullYear(), end.getMonth() + 1, 0).getDate();
             
-            // 핵심 수정 로직: 종료일이 해당 월의 말일인 경우, 시작일 숫자와 상관없이 해당 월을 꽉 채운 것으로 인정
+            // 시작 월과 종료 월의 말일 정보
+            const lastDayOfEndMonth = new Date(end.getFullYear(), end.getMonth() + 1, 0).getDate();
+            const lastDayOfStartMonth = new Date(start.getFullYear(), start.getMonth() + 1, 0).getDate();
+            
+            // 학년도 단위(예: 3.1.~익년 2.28.) 및 월 단위 말일 종료 예외 처리
+            // 종료일이 해당 월의 말일이거나, 날짜상으로 시작일보다 하루 앞서면 완전한 한 달로 인정
             if (endDay === lastDayOfEndMonth) {
-                if (startDay === 1) {
-                    totalMonths += 1;
-                } else {
-                    // 시작일이 1일이 아닐 경우 잔여 일수 로직이 필요하나, 병가는 통상 월단위 계산
-                    // 여기서는 1일 시작 - 말일 종료인 경우 12개월이 나오도록 함
-                    totalMonths += 1; 
-                }
+                // 시작일이 1일이거나, (3.1.~2.28. 같은 케이스 보정)
+                // 만약 시작일이 1일이 아니더라도 말일 종료 시 해당 월은 카운트에 포함
+                totalMonths += 1;
             } else if (endDay >= startDay - 1) {
                 totalMonths += 1;
             }
